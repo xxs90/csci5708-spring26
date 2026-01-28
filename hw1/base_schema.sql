@@ -1,0 +1,66 @@
+-- Base schema
+
+DROP TABLE IF EXISTS Reserves CASCADE;
+DROP TABLE IF EXISTS Cars CASCADE;
+DROP TABLE IF EXISTS Drivers CASCADE;
+
+DROP TABLE IF EXISTS Enrollment CASCADE;
+DROP TABLE IF EXISTS Courses CASCADE;
+DROP TABLE IF EXISTS Students CASCADE;
+DROP TABLE IF EXISTS Majors CASCADE;
+
+DROP TABLE IF EXISTS Sales CASCADE;
+
+CREATE TABLE Majors(
+  major_id INT PRIMARY KEY,
+  mname TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE Students(
+  sid INT PRIMARY KEY,
+  sname TEXT NOT NULL,
+  age INT NOT NULL CHECK (age >= 0),
+  gpa NUMERIC(3,2) NOT NULL CHECK (gpa >= 0 AND gpa <= 4.00),
+  major_id INT NOT NULL REFERENCES Majors(major_id) ON DELETE RESTRICT
+);
+
+CREATE TABLE Courses(
+  cid INT PRIMARY KEY,
+  title TEXT NOT NULL,
+  dept TEXT NOT NULL,
+  credits INT NOT NULL CHECK (credits BETWEEN 1 AND 6)
+);
+
+CREATE TABLE Enrollment(
+  sid INT NOT NULL REFERENCES Students(sid) ON DELETE CASCADE,
+  cid INT NOT NULL REFERENCES Courses(cid) ON DELETE CASCADE,
+  term TEXT NOT NULL,
+  grade TEXT,
+  PRIMARY KEY (sid, cid, term)
+);
+
+CREATE TABLE Drivers(
+  did INT PRIMARY KEY,
+  dname TEXT NOT NULL,
+  dyear INT NOT NULL CHECK (dyear >= 0),
+  age INT NOT NULL CHECK (age >= 0),
+  region TEXT NOT NULL CHECK (region IN ('East','West','North','South'))
+);
+
+CREATE TABLE Cars(
+  cid INT PRIMARY KEY,
+  model TEXT NOT NULL
+);
+
+CREATE TABLE Reserves(
+  did INT NOT NULL REFERENCES Drivers(did) ON DELETE CASCADE,
+  cid INT NOT NULL REFERENCES Cars(cid) ON DELETE CASCADE,
+  rdate DATE NOT NULL,
+  PRIMARY KEY (did, cid, rdate)
+);
+
+CREATE TABLE Sales(
+  region TEXT,
+  product TEXT,
+  amount INT NOT NULL CHECK (amount >= 0)
+);
